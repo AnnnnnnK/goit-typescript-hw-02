@@ -1,8 +1,9 @@
 import { ThreeCircles } from "react-loader-spinner";
 // import css from "components/Loader/Loader.module.css";
 import css from "./Loader.module.css";
+import { FC } from "react";
 
-const Loader = () => {
+const Loader: FC = () => {
   return (
     <ThreeCircles
       height="100"

@@ -1,6 +1,13 @@
+import { FC } from "react";
+import { Image } from "../../types";
 import css from "./ImageGalleryItem.module.css";
 
-const ImageGalleryItem = ({ image, openModal }) => {
+interface ImageGalleryItemProps {
+  image: Image;
+  openModal: (largeImgUrl: string, tag: string) => void;
+}
+
+const ImageGalleryItem: FC<ImageGalleryItemProps> = ({ image, openModal }) => {
   const { tags, webformatURL, largeImageURL } = image;
 
   const handleClick = () => {

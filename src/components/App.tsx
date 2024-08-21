@@ -1,29 +1,39 @@
-import Searchbar from "./Searchbar/Searchbar";
-// import { getAllImages } from "api/images";
 import ImageGallery from "./ImageGallery/ImageGallery";
 import Button from "./Button/Button";
 import Modal from "./Modal/Modal";
 import Loader from "./Loader/Loader";
 import { Notify } from "notiflix/build/notiflix-notify-aio";
 
-import { useCallback, useEffect, useState } from "react";
+import { FC, FormEvent, useCallback, useEffect, useState } from "react";
 import { getAllImages } from "../api/images";
+import Searchbar from "./Searchbar/Searchbar";
+import { Image } from "../types";
 
-const App = () => {
-  const [images, setImages] = useState(null);
-  const [q, setQ] = useState("");
-  const [page, setPage] = useState(1);
-  const [loadMore, setLoadMore] = useState(false);
-  const [isShowModal, setIsShowModal] = useState(false);
-  const [largeImgUrl, setLargeImgUrl] = useState(null);
-  const [tag, setTag] = useState(null);
-  const [loader, setLoader] = useState(false);
+interface Response {
+  hits: Image[];
+  total: number;
+  totalHits: number;
+}
+
+const App: FC = () => {
+  const [images, setImages] = useState<Image[] | null>(null);
+  const [largeImgUrl, setLargeImgUrl] = useState<string>("");
+  const [tag, setTag] = useState<string>("");
+
+  const [loadMore, setLoadMore] = useState<boolean>(false);
+  const [isShowModal, setIsShowModal] = useState<boolean>(false);
+  const [loader, setLoader] = useState<boolean>(false);
+
+  const [q, setQ] = useState<string>("");
+  const [page, setPage] = useState<number>(1);
 
   const getImages = useCallback(async () => {
     try {
       setLoader(true);
-      const response = await getAllImages(q, page);
+
+      const response: Response = await getAllImages(q, page);
       const { totalHits, hits } = response;
+
       if (totalHits === 0) {
         setLoadMore(false);
         Notify.info(`There is no such images like ${q}`);
@@ -36,8 +46,8 @@ const App = () => {
         Notify.success(`Yey, we found ${hits.length} images`);
       }
 
-      const newImages = hits.map(
-        ({ id, webformatURL, largeImageURL, tags }) => ({
+      const newImages: Image[] = hits.map(
+        ({ id, webformatURL, largeImageURL, tags }: Image) => ({
           id,
           webformatURL,
           largeImageURL,
@@ -45,7 +55,7 @@ const App = () => {
         })
       );
 
-      setImages((prevImgs) =>
+      setImages((prevImgs: Image[] | null): Image[] =>
         prevImgs ? [...prevImgs, ...newImages] : newImages
       );
 
@@ -62,32 +72,40 @@ const App = () => {
     getImages();
   }, [page, q, getImages]);
 
-  const onSubmit = (e) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    const q = e.target.search.value;
+
+    const form = e.target as HTMLFormElement;
+
+    const q = (form.elements.namedItem("search") as HTMLInputElement).value;
+
+    console.dir(q);
+
     if (q === "") {
       Notify.warning("Please enter your request");
       return;
     }
+
     setQ(q);
     setPage(1);
     setImages(null);
   };
 
-  const onLoadMore = () => {
+  const onLoadMore = (): void => {
     setPage((prevPage) => prevPage + 1);
     setLoader(true);
   };
 
-  const hideModal = () => {
+  const hideModal = (): void => {
     setIsShowModal(false);
   };
 
-  const openModal = (largeImgUrl, tag) => {
+  const openModal = (largeImgUrl: string, tag: string): void => {
     setIsShowModal(true);
     setLargeImgUrl(largeImgUrl);
     setTag(tag);
   };
+
   return (
     <>
       <Searchbar onSubmit={onSubmit} />

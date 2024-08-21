@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function getAllImages(query, page) {
+export async function getAllImages<T>(query: string, page: number): Promise<T> {
   const BASE_URL = "https://pixabay.com/api/";
   const response = await axios(BASE_URL, {
     params: {
